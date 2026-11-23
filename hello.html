@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICCT AIMs Student Portal</title>
+
+<style>
+:root {
+    --navy: #0b2045;
+    --navy-light: #183b6b;
+    --gold: #d6b45f;
+    --background: #f2f5fa;
+    --text: #26344a;
+    --muted: #8490a3;
+    --border: #e4e9f1;
+    --white: #ffffff;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI",Arial,sans-serif; }
+body { background:var(--background); color:var(--text); }
+
+.auth {
+    min-height:100vh; display:flex; justify-content:center; align-items:center;
+    padding:20px;
+    background:radial-gradient(circle at top right,#254d85,transparent 45%),
+               linear-gradient(135deg,#07172f,#102d59);
+}
+.auth-box {
+    width:100%; max-width:390px; padding:40px 35px; background:white;
+    border-radius:18px; text-align:center; box-shadow:0 20px 60px #0005;
+    animation:appear .5s ease;
+}
+@keyframes appear { from {opacity:0;transform:translateY(20px)} to {opacity:1;transform:translateY(0)} }
+.logo { color:var(--navy); font-size:29px; font-weight:800; letter-spacing:1.5px; margin-bottom:8px; }
+.auth-box>p { color:var(--muted); font-size:13px; margin-bottom:25px; }
+.auth-box h3 { color:var(--navy); margin-bottom:18px; }
+input {
+    width:100%; padding:14px; margin:9px 0; border:1px solid #dce2ec;
+    border-radius:9px; outline:none; background:#f8faff; font-size:14px;
+}
+input:focus { border-color:var(--gold); box-shadow:0 0 0 3px #c9a34f25; }
+button { cursor:pointer; border:0; border-radius:9px; padding:13px; font-weight:600; transition:background .2s,color .2s; }
+.auth-btn { width:100%; background:var(--navy); color:white; margin-top:15px; }
+.auth-btn:hover { background:var(--gold); color:var(--navy); }
+.switch { margin-top:22px; color:#244c82; cursor:pointer; font-size:13px; }
+.switch:hover { color:#a78335; }
+
+
+#dashboard { display:none; }
+.sidebar {
+    width:250px; height:100vh; position:fixed; top:0; left:0;
+    background:linear-gradient(180deg,#091a38,#102d59); color:white;
+    padding:30px 18px; box-shadow:5px 0 25px #07172f18; overflow-y:auto;
+}
+.sidebar h2 {
+    color:var(--gold); letter-spacing:1.5px; font-size:22px;
+    margin-bottom:35px; padding-bottom:22px; border-bottom:1px solid #ffffff20;
+}
+.sidebar p {
+    padding:14px 13px; margin-bottom:7px; cursor:pointer; border-radius:7px;
+    border-left:3px solid transparent; color:#d5ddeb; font-size:14px;
+}
+.sidebar p:hover,.sidebar p.active {
+    background:#ffffff12; border-left-color:var(--gold); color:var(--gold);
+}
+.logout { background:#a92f39; color:white; width:100%; margin-top:15px; }
+.logout:hover { background:#84232c; }
+.main { margin-left:250px; min-height:100vh; }
+.topbar {
+    min-height:75px; background:white; padding:20px 35px; display:flex;
+    justify-content:space-between; align-items:center; gap:15px;
+    border-bottom:1px solid var(--border); box-shadow:0 3px 15px #102d5909;
+}
+.topbar h3 { color:var(--navy); font-size:19px; }
+#studentDisplay { color:var(--navy); font-size:14px; font-weight:600; text-align:right; overflow-wrap:anywhere; }
+.content { padding:32px; }
+.section { display:none; width:100%; }
+.section.active { display:block; }
+
+
+.welcome {
+    position:relative; overflow:hidden; isolation:isolate; color:white;
+    padding:45px; border-radius:18px; margin-bottom:25px;
+    background:linear-gradient(115deg,#091a38,#153d70,#24558a,#102d59);
+    background-size:250% 250%; animation:welcomeGradient 9s ease infinite;
+    border:1px solid #ffffff20; box-shadow:0 12px 30px #102d5930;
+}
+.welcome::before {
+    content:""; position:absolute; z-index:-1; width:300px; height:300px;
+    right:-80px; top:-150px; border-radius:50%;
+    background:radial-gradient(circle,#d6b45f55,transparent 70%);
+    animation:welcomeGlow 6s ease-in-out infinite alternate;
+}
+.welcome::after {
+    content:""; position:absolute; top:0; left:-100%; width:45%; height:100%;
+    background:linear-gradient(100deg,transparent,#ffffff18,transparent);
+    transform:skewX(-20deg); animation:welcomeShine 7s ease-in-out infinite;
+    pointer-events:none;
+}
+.welcome h2 { position:relative; font-size:30px; margin-bottom:13px; }
+.welcome p { position:relative; color:#e4ebf6; line-height:1.7; }
+@keyframes welcomeGradient { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+@keyframes welcomeGlow { from{opacity:.4;transform:scale(.9)} to{opacity:1;transform:scale(1.15)} }
+@keyframes welcomeShine { 0%,65%{left:-100%} 100%{left:150%} }
+
+
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:18px; margin-bottom:25px; }
+.card,.record-card,.ledger-card,.ledger-table-box,.announcement-list {
+    background:white; border:1px solid var(--border); border-radius:14px;
+    box-shadow:0 5px 18px #102d5908;
+}
+.card { padding:25px; }
+.card h2 { color:#bd9742; margin-top:12px; font-size:25px; }
+.card h3 { color:var(--navy); }
+.card p { color:#667085; }
+
+.record-heading { color:var(--navy); font-size:28px; font-weight:750; margin-bottom:8px; }
+.record-description { color:var(--muted); margin-bottom:22px; font-size:14px; line-height:1.6; }
+.record-container { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px; margin-top:20px; }
+.record-card { padding:23px; }
+.record-card h3 { color:var(--navy); font-size:16px; padding-bottom:13px; margin-bottom:15px; border-bottom:1px solid var(--border); }
+.record-label { display:block; color:var(--muted); font-size:11px; letter-spacing:.4px; text-transform:uppercase; margin:10px 0 5px; }
+.record-value { color:var(--navy); font-size:14px; font-weight:650; line-height:1.6; overflow-wrap:anywhere; }
+.record-tag { display:inline-block; background:#e5f5ec; color:#207447; border-radius:5px; padding:6px 12px; font-size:11px; font-weight:bold; margin-top:12px; }
+.record-tag.pending { background:#fff2d9; color:#996000; }
+
+
+.ledger-section { margin-top:30px; }
+.ledger-student { margin-bottom:18px; padding:18px 22px; line-height:1.7; }
+.ledger-student strong { color:var(--navy); }
+.ledger-student p { color:var(--muted); font-size:13px; margin-top:5px; }
+.ledger-fees-box { margin-top:20px; }
+.ledger-table { min-width:720px; }
+.ledger-table th,.ledger-table td { white-space:normal; vertical-align:top; line-height:1.5; }
+.ledger-table th { padding:12px 10px; }
+.ledger-period td { background:#eef3fb; color:var(--navy); font-weight:650; }
+.ledger-header { display:flex; justify-content:space-between; align-items:center; gap:15px; margin-bottom:18px; }
+.ledger-header h2 { color:var(--navy); font-size:24px; margin-bottom:6px; }
+.ledger-header p { color:var(--muted); font-size:14px; }
+.ledger-icon { background:var(--navy); color:var(--gold); padding:13px 17px; border-radius:10px; font-size:24px; }
+.ledger-summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:15px; margin-bottom:20px; }
+.ledger-card { padding:22px; }
+.ledger-card span { color:var(--muted); font-size:13px; }
+.ledger-card h2 { color:var(--navy); margin-top:12px; font-size:21px; }
+.ledger-card.balance { border-left:4px solid #bd3939; }
+.ledger-card.balance h2 { color:#bd3939; }
+.ledger-table-box { padding:22px; }
+.ledger-table-box h3 { color:var(--navy); margin-bottom:12px; }
+.ledger-note { color:var(--muted); font-size:12px; margin-top:15px; }
+
+
+.table-wrap { width:100%; overflow-x:auto; }
+table { width:100%; min-width:550px; background:white; border-collapse:collapse; margin-top:15px; }
+th,td { padding:15px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
+th { background:var(--navy); color:white; font-size:13px; }
+td { color:#46546a; font-size:13px; }
+tbody tr:nth-child(even) { background:#f8faff; }
+
+
+.announcement-header { margin-bottom:25px; }
+.announcement-header h2 { color:var(--navy); font-size:28px; margin-bottom:8px; }
+.announcement-header p { color:var(--muted); line-height:1.6; }
+.featured-announcement {
+    background:linear-gradient(135deg,#10264a,#1d4275); color:white;
+    padding:30px; border-radius:15px; margin-bottom:28px;
+    box-shadow:0 5px 15px #00000018;
+}
+.featured-announcement small { color:#ffd166; font-weight:bold; letter-spacing:1px; }
+.featured-announcement h2 { margin:15px 0; }
+.featured-announcement p { color:#e0e8f5; line-height:1.7; }
+.announcement-label { color:var(--navy); margin-bottom:16px; }
+.announcement-container { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:18px; }
+.announcement-list { padding:22px; }
+.announcement-info { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+.announcement-tag { background:#e8efff; color:#2454a6; padding:6px 10px; border-radius:20px; font-size:11px; font-weight:bold; }
+.announcement-tag.important { background:#ffe5e5; color:#c62828; }
+.announcement-tag.event { background:#fff0d6; color:#a76500; }
+.announcement-date { font-size:12px; color:#888; }
+.announcement-list h3 { color:#172b4d; margin-bottom:10px; font-size:17px; }
+.announcement-list p { color:#667085; line-height:1.6; font-size:14px; }
+
+
+@media(max-width:700px) {
+    .sidebar { width:145px; padding:20px 9px; }
+    .sidebar h2 { font-size:17px; letter-spacing:1px; }
+    .sidebar p { font-size:12px; padding:12px 7px; }
+    .main { margin-left:145px; }
+    .content { padding:15px; }
+    .welcome { padding:25px 20px; }
+    .welcome h2 { font-size:22px; }
+    .topbar { padding:15px; gap:8px; }
+    .topbar h3 { font-size:15px; }
+    #studentDisplay { font-size:11px; }
+    .record-container { grid-template-columns:1fr; }
+    .record-card { padding:19px; }
+    .ledger-table-box { padding:15px; }
+    .featured-announcement { padding:22px; }
+}
+@media(max-width:420px) {
+    .sidebar { width:125px; }
+    .main { margin-left:125px; }
+    .sidebar h2 { font-size:15px; }
+    .sidebar p { font-size:11px; }
+    .content { padding:11px; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .welcome,.welcome::before,.welcome::after { animation:none !important; }
+}
+</style>
+</head>
+
+<body>
+    
+<div class="auth" id="signup">
+    <div class="auth-box">
+        <div class="logo">ICCT AIMs</div>
+        <p>ICCT AIMs Student Portal</p>
+        <h3>Create Account</h3>
+        <input type="text" id="regName" placeholder="Full Name" autocomplete="name">
+        <input type="email" id="regEmail" placeholder="Email Address" autocomplete="email">
+        <input type="password" id="regPass" placeholder="Password" autocomplete="new-password">
+        <button class="auth-btn" onclick="register()">REGISTER</button>
+        <div class="switch" onclick="showLogin()">Already have an account? Log In</div>
+    </div>
+</div>
+
+
+<div class="auth" id="login" style="display:none;">
+    <div class="auth-box">
+        <div class="logo">ICCT AIMs</div>
+        <p>ICCT AIMs Student Portal</p>
+        <h3>Log In</h3>
+        <input type="email" id="loginEmail" placeholder="Email Address" autocomplete="email">
+        <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
+        <button class="auth-btn" onclick="loginUser()">LOG IN</button>
+        <div class="switch" onclick="showSignup()">Don't have an account? Register</div>
+    </div>
+</div>
+
+
+<div id="dashboard">
+    <aside class="sidebar">
+        <h2>ICCT AIMs</h2>
+        <p class="active" onclick="showSection('home',this)">Dashboard</p>
+        <p onclick="showSection('profile',this)">My Profile</p>
+        <p onclick="showSection('ledger',this)">Account Ledger</p>
+        <p onclick="showSection('subjects',this)">My Subjects</p>
+        <p onclick="showSection('grades',this)">My Grades</p>
+        <p onclick="showSection('announcements',this)">Announcements</p>
+        <button class="logout" onclick="logout()">LOG OUT</button>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <h3>Student Portal</h3>
+            <span id="studentDisplay"></span>
+        </header>
+
+        <div class="content">
+
+            
+            <section id="home" class="section active">
+                <div class="welcome">
+                    <h2>Welcome to ICCT AIMs Portal</h2>
+                    <p>ICCT AIMs Student Portal</p>
+                    <br>
+                    <p>Manage your academic information in one place.</p>
+                </div>
+
+                <div class="cards">
+                    <div class="card"><p>Enrolled Subjects</p><h2>6</h2></div>
+                    <div class="card"><p>Academic Year</p><h2>2026-2027</h2></div>
+                    <div class="card"><p>Student Status</p><h2>Active</h2></div>
+                </div>
+
+                <div class="card">
+                    <h3>Latest Announcement</h3><br>
+                    <p>Welcome students! Please check your class schedules and academic updates regularly.</p>
+                </div>
+            </section>
+
+            <section id="profile" class="section">
+                <h2 class="record-heading">My Profile</h2>
+                <p class="record-description">Personal and academic student information.</p>
+
+                <div class="record-container">
+                    <div class="record-card">
+                        <span class="record-label">Full Name</span>
+                        <div class="record-value" id="profileName">Student Name</div>
+                    </div>
+                    <div class="record-card">
+                        <span class="record-label">Student Number</span>
+                        <div class="record-value">CA202605924</div>
+                    </div>
+                    <div class="record-card">
+                        <span class="record-label">Program</span>
+                        <div class="record-value">BElemEd - Bachelor in Elementary Education</div>
+                    </div>
+                    <div class="record-card">
+                        <span class="record-label">Year Level</span>
+                        <div class="record-value">First Year</div>
+                    </div>
+                    <div class="record-card">
+                        <span class="record-label">Curriculum Year</span>
+                        <div class="record-value">2223</div>
+                    </div>
+                    <div class="record-card">
+                        <span class="record-label">Modality</span>
+                        <div class="record-value">Limited Face-to-Face Classes (LF)</div>
+                    </div>
+                    <div class="record-card">
+                        <span class="record-label">Status</span>
+                        <div class="record-value">Continuing (Regular)</div>
+                        <span class="record-tag">ACTIVE</span>
+                    </div>
+                    <div class="record-card">
+                        <span class="record-label">Allowed Units</span>
+                        <div class="record-value">18 Units</div>
+                    </div>
+                    <div class="record-card">
+                        <span class="record-label">Section</span>
+                        <div class="record-value">LFCA122M053</div>
+                    </div>
+                    <div class="record-card">
+                        <span class="record-label">School Year</span>
+                        <div class="record-value">2026-2027</div>
+                    </div>
+                    <div class="record-card">
+                        <span class="record-label">Academic Term</span>
+                        <div class="record-value">Second</div>
+                    </div>
+                    <div class="record-card">
+                        <span class="record-label">Registered Email</span>
+                        <div class="record-value" id="profileEmail">Not available</div>
+                    </div>
+                </div>
+
+            </section>
+
+           
+            <section id="ledger" class="section">
+                <div class="ledger-header">
+                    <div>
+                        <h2>Account Ledger</h2>
+                        <p>Student financial records and payment history.</p>
+                    </div>
+                    <span class="ledger-icon">▤</span>
+                </div>
+
+                <div class="ledger-student record-card">
+                    <strong>CA202605924 - DE GUIA, MARY DANIELLE</strong>
+                    <p>School Year 2026-2027 · First Term · BElemEd - Bachelor in Elementary Education · First Year</p>
+                </div>
+
+                <div class="ledger-summary">
+                    <div class="ledger-card"><span>Total Amount Due</span><h2>₱5,779.10</h2></div>
+                    <div class="ledger-card"><span>Total Payments</span><h2>₱5,779.10</h2></div>
+                    <div class="ledger-card balance"><span>Remaining Balance</span><h2>NO BALANCE</h2></div>
+                </div>
+
+                <div class="ledger-table-box">
+                    <h3>Assessment Fees</h3>
+                    <div class="table-wrap">
+                        <table class="ledger-table">
+                            <thead><tr><th>Transaction Date</th><th>Description</th><th>Debit</th><th>Credit</th><th>Balance</th></tr></thead>
+                            <tbody>
+                                <tr class="ledger-period"><td colspan="5">2026-2027 - First, (BElemEd) Bachelor in Elementary Education, First Year</td></tr>
+                                <tr><td>—</td><td><strong>TOTAL AMOUNT DUE</strong></td><td>₱5,779.10</td><td>₱0.00</td><td>₱5,779.10</td></tr>
+                                <tr><td>July 03, 2026<br>01:54 PM</td><td>ECPAY: REF# CA07032600641 - Fullpayment (OR #ACS1340474)</td><td>₱0.00</td><td>₱5,779.10</td><td>₱0.00</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="ledger-note">Assessment payment shown as recorded in the supplied ledger screenshot.</p>
+                </div>
+
+                <div class="ledger-table-box ledger-fees-box">
+                    <h3>Non-Assessment Fees</h3>
+                    <div class="table-wrap">
+                        <table class="ledger-table">
+                            <thead><tr><th>Transaction Date</th><th>Description</th><th>Debit</th><th>Credit</th><th>Balance</th></tr></thead>
+                            <tbody>
+                                <tr class="ledger-period"><td colspan="5">2026-2027 - First, (BElemEd) Bachelor in Elementary Education, First Year</td></tr>
+                                <tr><td>July 02, 2026<br>11:13 AM</td><td>CASH - Application fee (OR #CA1172929)</td><td>₱2000.00</td><td>₱0.00</td><td>₱2000.00</td></tr>
+                                <tr><td>July 02, 2026<br>11:13 AM</td><td>CASH - Application fee (OR #CA1172929)</td><td>₱0.00</td><td>₱2000.00</td><td>₱0.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - Uniform PE (OR #ACS1357688)</td><td>₱250.00</td><td>₱0.00</td><td>₱250.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - Uniform PE (OR #ACS1357688)</td><td>₱0.00</td><td>₱250.00</td><td>₱0.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - School ID (OR #ACS1357688)</td><td>₱150.00</td><td>₱0.00</td><td>₱150.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - School ID (OR #ACS1357688)</td><td>₱0.00</td><td>₱150.00</td><td>₱0.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - Uniform EDUC Female (OR #ACS1357688)</td><td>₱1200.00</td><td>₱0.00</td><td>
+                                    
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - Uniform PE (OR #ACS1357688)</td><td>₱250.00</td><td>₱0.00</td><td>₱250.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - Uniform PE (OR #ACS1357688)</td><td>₱0.00</td><td>₱250.00</td><td>₱0.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - School ID (OR #ACS1357688)</td><td>₱150.00</td><td>₱0.00</td><td>₱150.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - School ID (OR #ACS1357688)</td><td>₱0.00</td><td>₱150.00</td><td>₱0.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - Uniform EDUC Female (OR #ACS1357688)</td><td>₱1200.00</td><td>₱0.00</td><td>₱1200.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - Uniform EDUC Female (OR #ACS1357688)</td><td>₱0.00</td><td>₱1200.00</td><td>₱0.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - ID Lace (OR #ACS1357688)</td><td>₱100.00</td><td>₱0.00</td><td>₱100.00</td></tr>
+                                <tr><td>July 18, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - ID Lace (OR #ACS1357688)</td><td>₱0.00</td><td>₱100.00</td><td>₱0.00</td></tr>
+                                <tr><td>August 28, 2026<br>10:11 AM</td><td>ECPAY: REF# CA08282600268 - NSTP Uniform (new design) (OR #ACS1418864)</td><td>₱250.00</td><td>₱0.00</td><td>₱250.00</td></tr>
+                                <tr><td>August 28, 2026<br>10:11 AM</td><td>ECPAY: REF# CA08282600268 - NSTP Uniform (new design) (OR #ACS1418864)</td><td>₱0.00</td><td>₱250.00</td><td>₱0.00</td></tr>              
+                                <tr><td>November 20, 2026<br>03:27 PM</td><td>ECPAY: REF# CA07182601409 - Uniform Jogger Pants (2 pairs × ₱350.00) (OR #ACS1357688)</td><td>₱0.00</td><td>₱700.00</td><td>₱0.00</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="ledger-note">Sample reproduction of the visible entries in the screenshots. Confirm all details against the official student portal.</p>
+                </div>
+            </section>
+                    
+                    
+<section id="ledger" class="section">
+
+    <div class="ledger-header">
+        <div>
+            <h2>Account Ledger</h2>
+            <p>Student financial records and payment history.</p>
+        </div>
+        <span class="ledger-icon">▤</span>
+    </div>
+
+    <div class="ledger-student record-card">
+        <strong>CA202605924 - DE GUIA, MARY DANIELLE</strong>
+        <p>School Year 2026-2027 · First Term · BElemEd - Bachelor in Elementary Education · First Year</p>
+    </div>
+
+    <div class="ledger-summary">
+        <div class="ledger-card">
+            <span>Total Amount Due</span>
+            <h2>₱5,779.10</h2>
+        </div>
+        <div class="ledger-card">
+            <span>Total Payments</span>
+            <h2>₱5,779.10</h2>
+        </div>
+        <div class="ledger-card balance">
+            <span>Remaining Balance</span>
+            <h2>NO BALANCE</h2>
+        </div>
+    </div>
+
+    
+    <div class="ledger-table-box">
+        <h3>Assessment Fees</h3>
+
+        <div class="table-wrap">
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th>Transaction Date</th>
+                        <th>Description</th>
+                        <th>Debit</th>
+                        <th>Credit</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr class="ledger-period">
+                        <td colspan="5">
+                            2026-2027 - First, (BElemEd) Bachelor in Elementary Education, First Year
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>—</td>
+                        <td><strong>TOTAL AMOUNT DUE</strong></td>
+                        <td>₱5,779.10</td>
+                        <td>₱0.00</td>
+                        <td>₱5,779.10</td>
+                    </tr>
+
+                    <tr>
+                        <td>July 03, 2026<br>01:54 PM</td>
+                        <td>ECPAY: REF# CA07032600641 - Fullpayment (OR #ACS1340474)</td>
+                        <td>₱0.00</td>
+                        <td>₱5,779.10</td>
+                        <td>₱0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+  
+    <div class="ledger-table-box ledger-fees-box">
+        <h3>Non-Assessment Fees</h3>
+
+        <div class="table-wrap">
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th>Transaction Date</th>
+                        <th>Description</th>
+                        <th>Debit</th>
+                        <th>Credit</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr class="ledger-period">
+                        <td colspan="5">
+                            2026-2027 - First, (BElemEd) Bachelor in Elementary Education, First Year
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>July 02, 2026<br>11:13 AM</td>
+                        <td>CASH - Application Fee (OR #CA1172929)</td>
+                        <td>₱2,000.00</td>
+                        <td>₱0.00</td>
+                        <td>₱2,000.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>July 02, 2026<br>11:13 AM</td>
+                        <td>CASH - Application Fee (OR #CA1172929)</td>
+                        <td>₱0.00</td>
+                        <td>₱2,000.00</td>
+                        <td>₱0.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>July 18, 2026<br>03:27 PM</td>
+                        <td>ECPAY - Uniform Jogger Pants (2 pairs × ₱350)</td>
+                        <td>₱0.00</td>
+                        <td>₱700.00</td>
+                        <td>₱0.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>July 18, 2026<br>03:27 PM</td>
+                        <td>ECPAY - Uniform PE</td>
+                        <td>₱250.00</td>
+                        <td>₱0.00</td>
+                        <td>₱250.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>July 18, 2026<br>03:27 PM</td>
+                        <td>ECPAY - Uniform PE</td>
+                        <td>₱0.00</td>
+                        <td>₱250.00</td>
+                        <td>₱0.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>July 18, 2026<br>03:27 PM</td>
+                        <td>ECPAY - School ID</td>
+                        <td>₱150.00</td>
+                        <td>₱0.00</td>
+                        <td>₱150.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>July 18, 2026<br>03:27 PM</td>
+                        <td>ECPAY - School ID</td>
+                        <td>₱0.00</td>
+                        <td>₱150.00</td>
+                        <td>₱0.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>July 18, 2026<br>03:27 PM</td>
+                        <td>ECPAY - Uniform EDUC Female</td>
+                        <td>₱1,200.00</td>
+                        <td>₱0.00</td>
+                        <td>₱1,200.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>July 18, 2026<br>03:27 PM</td>
+                        <td>ECPAY - Uniform EDUC Female</td>
+                        <td>₱0.00</td>
+                        <td>₱1,200.00</td>
+                        <td>₱0.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>July 18, 2026<br>03:27 PM</td>
+                        <td>ECPAY - ID Lace</td>
+                        <td>₱100.00</td>
+                        <td>₱0.00</td>
+                        <td>₱100.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>July 18, 2026<br>03:27 PM</td>
+                        <td>ECPAY - ID Lace</td>
+                        <td>₱0.00</td>
+                        <td>₱100.00</td>
+                        <td>₱0.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>August 28, 2026<br>10:11 AM</td>
+                        <td>ECPAY - NSTP Uniform (New Design)</td>
+                        <td>₱250.00</td>
+                        <td>₱0.00</td>
+                        <td>₱250.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>August 28, 2026<br>10:11 AM</td>
+                        <td>ECPAY - NSTP Uniform (New Design)</td>
+                        <td>₱0.00</td>
+                        <td>₱250.00</td>
+                        <td>₱0.00</td>
+                    </tr>
+
+               
+                    <tr>
+                        <td>November 20, 2026<br>03:27 PM</td>
+                        <td>ECPAY - Uniform Jogger Pants (2 pairs × ₱350)</td>
+                        <td>₱700.00</td>
+                        <td>₱0.00</td>
+                        <td>₱700.00</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        
+    <div class="ledger-table-box ledger-fees-box">
+        <h3>Available Non-Assessment Fee Options</h3>
+
+        <div class="table-wrap">
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th>Fee / Item</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Processing Fee - Withdrawal</td>
+                        <td>Not provided</td>
+                    </tr>
+                    <tr>
+                        <td>School ID</td>
+                        <td>₱150.00</td>
+                    </tr>
+                    <tr>
+                        <td>Shifting Fee</td>
+                        <td>Not provided</td>
+                    </tr>
+                    <tr>
+                        <td>Summary of Grades</td>
+                        <td>Not provided</td>
+                    </tr>
+                    <tr>
+                        <td>Transcript of Records - Bachelor Course</td>
+                        <td>Not provided</td>
+                    </tr>
+                    <tr>
+                        <td>Uniform EDUC Female</td>
+                        <td>₱1,100.00</td>
+                    </tr>
+                    <tr>
+                        <td>Uniform Jogger Pants for PE (2 pairs)</td>
+                        <td>₱700.00</td>
+                    </tr>
+                    <tr>
+                        <td>Uniform PE</td>
+                        <td>₱250.00</td>
+                    </tr>
+                    <tr>
+                        <td>ID Lace</td>
+                        <td>₱100.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+                    
+                    <div class="ledger-table-box">
+    <h3>Payment Summary</h3>
+
+    <table class="ledger-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Uniform (Female)</td><td>₱1,100.00</td></tr>
+            <tr><td>ID Lace</td><td>₱100.00</td></tr>
+            <tr><td>Uniform PE Jogger Pants</td><td>₱350.00</td></tr>
+            <tr><td>Uniform PE</td><td>₱250.00</td></tr>
+            <tr><td>School ID</td><td>₱150.00</td></tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Total Amount to Pay</th>
+                <th>₱1,950.00</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <button class="auth-btn" onclick="alert('Sample payment code generated!')">
+        Generate Payment Code
+    </button>
+</div>
+
+
+              <section id="subjects" class="section">
+                <h2 class="record-heading">My Subjects</h2>
+                <p class="record-description">Enrolled subject records and assigned professors.</p>
+
+                <div class="record-container">
+                    <div class="record-card">
+                        <h3>Subject 01</h3>
+                        <span class="record-label">Professor</span><div class="record-value">PADILLA, ELOISA YUZZIEL</div>
+                        <span class="record-label">Units</span><div class="record-value">3 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                    </div>
+
+                    <div class="record-card">
+                        <h3>Subject 02</h3>
+                        <span class="record-label">Professor</span><div class="record-value">GODOY, MARY JOY</div>
+                        <span class="record-label">Units</span><div class="record-value">3 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                    </div>
+                    <div class="record-card">
+                        <h3>Subject 03</h3>
+                        <span class="record-label">Professor</span><div class="record-value">BERMUNDO, VIRGILIO II</div>
+                        <span class="record-label">Units</span><div class="record-value">2 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                    </div>
+                    <div class="record-card">
+                        <h3>Subject 04</h3>
+                        <span class="record-label">Professor</span><div class="record-value">ORDANZA, ANGELICA JORGE</div>
+                        <span class="record-label">Units</span><div class="record-value">4 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                    </div>
+                    <div class="record-card">
+                        <h3>Subject 05</h3>
+                        <span class="record-label">Professor</span><div class="record-value">BAUTISTA, JENNY</div>
+                        <span class="record-label">Units</span><div class="record-value">3 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                    </div>
+                    <div class="record-card">
+                        <h3>Subject 06</h3>
+                        <span class="record-label">Professor</span><div class="record-value">GRANIEL, JOANNE TENORIO</div>
+                        <span class="record-label">Units</span><div class="record-value">3 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                    </div>
+                </div>
+                <p class="ledger-note">Subject names are not visible in the provided screenshot. Replace these sample labels with the official subject names when available.</p>
+              </section>
+
+            <section id="grades" class="section">
+                <h2 class="record-heading">My Grades</h2>
+                <p class="record-description">View your academic performance and grade records.</p>
+
+                <div class="record-container">
+                    <div class="record-card">
+                        <h3>Grade Record 01</h3>
+                        <span class="record-label">Units</span><div class="record-value">3 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                        <span class="record-label">Average</span><div class="record-value">—</div>
+                        <span class="record-label">Grade</span><div class="record-value">—</div>
+                        <span class="record-tag pending">Not Available</span>
+                    </div>
+                    <div class="record-card">
+                        <h3>Grade Record 02</h3>
+                        <span class="record-label">Units</span><div class="record-value">3 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                        <span class="record-label">Average</span><div class="record-value">—</div>
+                        <span class="record-label">Grade</span><div class="record-value">—</div>
+                        <span class="record-tag pending">Not Available</span>
+                    </div>
+                    <div class="record-card">
+                        <h3>Grade Record 03</h3>
+                        <span class="record-label">Units</span><div class="record-value">2 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                        <span class="record-label">Average</span><div class="record-value">—</div>
+                        <span class="record-label">Grade</span><div class="record-value">—</div>
+                        <span class="record-tag pending">Not Available</span>
+                    </div>
+                    <div class="record-card">
+                        <h3>Grade Record 04</h3>
+                        <span class="record-label">Units</span><div class="record-value">4 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                        <span class="record-label">Average</span><div class="record-value">—</div>
+                        <span class="record-label">Grade</span><div class="record-value">—</div>
+                        <span class="record-tag pending">Not Available</span>
+                    </div>
+                    <div class="record-card">
+                        <h3>Grade Record 05</h3>
+                        <span class="record-label">Units</span><div class="record-value">3 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                        <span class="record-label">Average</span><div class="record-value">—</div>
+                        <span class="record-label">Grade</span><div class="record-value">—</div>
+                        <span class="record-tag pending">Not Available</span>
+                    </div>
+                    <div class="record-card">
+                        <h3>Grade Record 06</h3>
+                        <span class="record-label">Units</span><div class="record-value">3 Units</div>
+                        <span class="record-label">Section</span><div class="record-value">LFCA111N011</div>
+                        <span class="record-label">Average</span><div class="record-value">—</div>
+                        <span class="record-label">Grade</span><div class="record-value">—</div>
+                        <span class="record-tag pending">Not Available</span>
+                    </div>
+                </div>
+                <p class="ledger-note">Grades and averages were not visible in the provided screenshots, so they are left blank rather than invented.</p>
+            </section>
+
+            
+            <section id="announcements" class="section">
+                <div class="announcement-header">
+                    <h2>Announcements</h2>
+                    <p>Stay updated with the latest news and ICCT AIMs information.</p>
+                </div>
+
+                <div class="featured-announcement">
+                    <small>★ FEATURED ANNOUNCEMENT</small>
+                    <h2>Welcome to Academic Year 2026-2027!</h2>
+                    <p>Welcome, students! Stay informed with the latest academic updates, activities, and important announcements.</p>
+    </div>
+
+                
+                <h3 class="announcement-label">Latest Announcements</h3>
+                <div class="announcement-container">
+                    <div class="announcement-list">
+                        <div class="announcement-info">
+                            <span class="announcement-tag important">IMPORTANT</span>
+                            <span class="announcement-date">November 19, 2026</span>
+                        </div>
+                        <h3>Academic Advisory</h3>
+                        <p>Students are encouraged to regularly check their academic information and monitor important ICCT AIMs updates.</p>
+                    </div>
+
+                    <div class="announcement-list">
+                        <div class="announcement-info">
+                            <span class="announcement-tag">ACADEMIC</span>
+                            <span class="announcement-date">November 18, 2026</span>
+                        </div>
+                        <h3>Class Schedule Reminder</h3>
+                        <p>Please review your class schedules and check your respective subjects regularly.</p>
+                    </div>
+
+                    <div class="announcement-list">
+                        <div class="announcement-info">
+                            <span class="announcement-tag event">EVENT</span>
+                            <span class="announcement-date">November 17, 2026</span>
+                        </div>
+                        <h3>Upcoming ICCT AIMs Activities</h3>
+                        <p>Students are encouraged to participate in upcoming ICCT AIMs activities and programs.</p>
+                    </div>
+
+                    <div class="announcement-list">
+                        <div class="announcement-info">
+                            <span class="announcement-tag">ACADEMIC</span>
+                            <span class="announcement-date">November 15, 2026</span>
+                        </div>
+                        <h3>Examination Preparation</h3>
+                        <p>Prepare your academic requirements and review your lessons for upcoming examinations.</p>
+                    </div>
+                </div>
+                <p class="ledger-note">These are sample announcements for the portal demonstration, not official school notices.</p>
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<script>
+let registeredName = "";
+let registeredEmail = "";
+let registeredPassword = "";
+
+function register() {
+    registeredName = document.getElementById("regName").value.trim();
+    registeredEmail = document.getElementById("regEmail").value.trim();
+    registeredPassword = document.getElementById("regPass").value;
+
+    if (!registeredName || !registeredEmail || !registeredPassword) {
+        alert("Please complete all fields!");
+        return;
+    }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(registeredEmail)) {
+        alert("Please enter a valid email address.");
+        return;
+    }
+    if (registeredPassword.length < 6) {
+        alert("Password must be at least 6 characters.");
+        return;
+    }
+
+    alert("Registration successful! You can now log in.");
+    showLogin();
+}
+
+function showLogin() {
+    document.getElementById("signup").style.display = "none";
+    document.getElementById("login").style.display = "flex";
+}
+
+function showSignup() {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("signup").style.display = "flex";
+}
+
+function loginUser() {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPass").value;
+
+    if (!email || !password) {
+        alert("Please enter your email and password.");
+        return;
+    }
+
+    if (registeredEmail && email === registeredEmail && password === registeredPassword) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("signup").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+
+        document.getElementById("studentDisplay").textContent = registeredName;
+        document.getElementById("profileName").textContent = registeredName;
+        document.getElementById("profileEmail").textContent = registeredEmail;
+        showSection("home", document.querySelector(".sidebar p"));
+    } else {
+        alert("Incorrect email or password. Please register first or check your login details.");
+    }
+}
+
+function logout() {
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("login").style.display = "flex";
+    document.getElementById("loginEmail").value = "";
+    document.getElementById("loginPass").value = "";
+    alert("You have logged out successfully!");
+}
+
+function showSection(sectionID, clickedItem) {
+    const targetSection = document.getElementById(sectionID);
+    if (!targetSection || !targetSection.classList.contains("section")) {
+        return;
+    }
+
+    document.querySelectorAll(".section").forEach(section => section.classList.remove("active"));
+    targetSection.classList.add("active");
+
+    document.querySelectorAll(".sidebar p").forEach(item => item.classList.remove("active"));
+    if (clickedItem) clickedItem.classList.add("active");
+}
+        
+        function generatePaymentCode() {
+
+    const total = 1950.00;
+ 
+    const randomNumber = Math.floor(100000000 + Math.random() * 900000000);
+
+    const reference = "ICCT-" + randomNumber;
+
+    
+    const date = new Date();
+
+    document.getElementById("referenceCode").textContent = reference;
+
+    document.getElementById("paymentAmount").textContent =
+        "₱" + total.toLocaleString("en-PH", {
+            minimumFractionDigits: 2
+        });
+
+    document.getElementById("paymentDate").textContent =
+        "Generated: " + date.toLocaleString();
+
+    document.getElementById("paymentResult").style.display = "block";
+}
+
+function copyPaymentCode() {
+
+    const reference =
+        document.getElementById("referenceCode").textContent;
+
+    navigator.clipboard.writeText(reference)
+        .then(() => alert("Payment reference copied!"))
+        .catch(() => alert("Unable to copy reference code."));
+}
+        
+</script>
+
+</body>
+ </html>
+    
+
+            
